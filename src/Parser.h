@@ -176,6 +176,20 @@ class Break : public ASTNode {
   NodeType getType() const override { return NodeType::break_; }
 };
 
+class Continue : public ASTNode {
+	NodeType getType() const override {
+		return NodeType::continue_;
+	}
+};
+
+class Namespace : public ASTNode {
+	std::string np;
+	std::vector<std::unique_ptr<ASTNode>> nrr;
+	NodeType getType() const override {
+		return NodeType::namespace_;
+	}
+};
+
 class LiteralNode : public ExprNode {
  public:
   std::string value;
