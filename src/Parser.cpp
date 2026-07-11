@@ -1,6 +1,7 @@
 #include "Parser.h"
 
 #include <stdio.h>
+#include <unordered_map>
 
 #include "diagnostics.h"
 #include "parse_helper.h"
@@ -47,6 +48,7 @@ std::unique_ptr<ExprNode> ParseSum(size_t& i, const TokenArray& arr);
 std::unique_ptr<ASTNode> ParseBasic(size_t& i, const TokenArray& arr);
 
 bool fq = false;
+std::unordered_map<std::string, bool> brought;
 
 struct ParsedTypeResult {
   ExprNode::DataType baseType = ExprNode::DataType::Unknown;
