@@ -91,7 +91,7 @@ curl -fsSL https://raw.githubusercontent.com/tezevsk/Sbix/refs/heads/main/script
 
 You can *ensure* script *safety* [Here](scripts/fastinstall.sh)
 
-#### Or instal &emsp; [prebuilt binnaries](github.com/tezevsk/Sbix/releases/latest)</a>
+#### Or instal &emsp; [prebuilt binnaries](github.com/tezevsk/Sbix/releases)</a>
 
 ## Tested on
 
@@ -104,4 +104,4 @@ Contributions, Issues and Pull requests are **welcome**! Every small step lead t
 
 ## License
 
-Code licensed under *Apache License 2.0* Distributed "AS IS" Absolute accuracy and (absolute) safety of work are NOT guaranteed. For further [info](licenses)
+Code licensed under *Apache License 2.0* Distributed "AS IS" Absolute accuracy and (absolute) safety of work are NOT guaranteed. For further [info](LICENSE)
