@@ -15,6 +15,7 @@ enum class TokenType {
   return_,
   extern_,
   break_,
+  continue_,
 
   // * Types *
 
