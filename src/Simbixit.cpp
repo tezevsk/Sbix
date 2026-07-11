@@ -14,6 +14,8 @@
 bool hasErrors = false;
 unsigned int totalError = 0;
 
+std::filesystem::path filePth;
+
 int main(int argc, char* argv[]) {
   if (argc < 2) {
     std::cout << "Usage: " << argv[0] << " <filename>\n use |   " << argv[0]
@@ -28,6 +30,7 @@ int main(int argc, char* argv[]) {
     std::cerr << rel_path << " No such file or directory\n";
     return 1;
   }
+  filePth = path;
 
   std::ifstream file(path);
   if (!file.is_open()) {
