@@ -1,0 +1,7 @@
+@entry
+
+return 42
+
+// Easy!
+// Compile code --> "sbix Hello42.sbix"
+// (if you have it INSTALLED, otherwise, use ../sbix or ./sbix depends on where this file is located)
