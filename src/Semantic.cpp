@@ -161,6 +161,12 @@ void Analyze(ASTNode* node, std::string addPrefix = "") {
       binNode.evaluatedType = leftType;
     }
   }
+  if (node->getType() == NodeType::namespace_) {
+		auto& namesp = static_cast<Namespace&>(*node);
+		for (const auto& insideBlock : namesp.nrr) {
+			Analyze(insideBlock.get(), addPrefix + namesp.np + "_");
+		}
+	}
   if (node->getType() == NodeType::collection) {
     auto collection = dynamic_cast<CollectionNode*>(node);
     if (collection) {
