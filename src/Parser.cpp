@@ -145,6 +145,26 @@ std::unique_ptr<Namespace> ParseBring(size_t& i, const TokenArray& arr) {
 	return namespace_;
 }
 
+std::unique_ptr<Namespace> ParseNamespace(size_t& i, const TokenArray& arr) {
+	if (arr[i].type != TokenType::namespace_) {
+		return nullptr;
+	}
+	auto namespace_ = std::make_unique<Namespace>();
+	i++; //keyword
+	if (arr[i].type != TokenType::identifier) {
+		errorf(arr[i].loc, "P210", "Expected namespace name, after keyword");
+		return nullptr;
+	}
+	namespace_->np = arr[i].content;
+	i++; // name
+	if (arr[i].type != TokenType::lbrace) {
+		errorf(arr[i].loc, "P153", "Expected '{' after {}", namespace_->np);
+		return nullptr;
+	}
+	namespace_->nrr = ParseBlock(i, arr)->block;
+	return namespace_;
+}
+
 std::unique_ptr<ReturnNode> ParseReturn(size_t& i, const TokenArray& arr) {
   if (arr[i].type == TokenType::return_) {
     auto _return = std::make_unique<ReturnNode>();
