@@ -22,6 +22,9 @@ static constexpr TokenMapping keyword[] = {
     {"function", TokenType::function},
     {"extern", TokenType::extern_},
     {"break", TokenType::break_},
+		{"continue",TokenType::continue_},
+		{"namespace",TokenType::namespace_},
+		{"class",TokenType::class_},
 };
 
 #ifndef _lexHelper_noFunctions
