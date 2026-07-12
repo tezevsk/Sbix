@@ -6,6 +6,8 @@
 #include "diagnostics.h"
 #include "parse_helper.h"
 
+#include "HandleBring.h"
+
 static bool isOp(TokenType t) {
   if (t == TokenType::plus || t == TokenType::minus ||
       t == TokenType::multiply || t == TokenType::divide)
@@ -111,6 +113,36 @@ ParsedTypeResult ParseType(size_t& i, const TokenArray& arr) {
     i++;
   }
   return result;
+}
+
+std::unique_ptr<Namespace> ParseBring(size_t& i, const TokenArray& arr) {
+	if (arr[i].type != TokenType::bring) {
+		return nullptr;
+	}
+	auto namespace_ = std::make_unique<Namespace>();
+	i++; // keyword
+	if (arr[i].type != TokenType::identifier || arr[i].type != TokenType::string) {
+		errorf(arr[i].loc, "P210|P157", "Expected an identifier or string after \"bring\"");
+		i++;
+		return nullptr;
+	}
+	std::string importName;
+	namespace_->nrr = HandleBring(arr[i].content);
+	i++;
+	if (arr[i].type != TokenType::arrow) {
+		size_t lastDotPosition = importName.rfind(".");
+		namespace_->np = (lastDotPosition != std::string::npos)
+			? importName.substr(lastDotPosition)
+			: importName;
+		return namespace_;
+	}
+	i++; // ->
+	if (arr[i].type != TokenType::identifier) {
+		errorf(arr[i].loc, "P210", "Expetced and indentifier after '->'");
+		return nullptr;
+	}
+	namespace_->np = arr[i].content;
+	return namespace_;
 }
 
 std::unique_ptr<ReturnNode> ParseReturn(size_t& i, const TokenArray& arr) {
@@ -301,6 +333,16 @@ std::unique_ptr<Break> ParseBreak(size_t& i, const TokenArray& arr) {
     return break_;  // брэк
   }
   return nullptr;
+}
+
+std::unique_ptr<Continue> ParseContinue(size_t& i, const TokenArray& arr) {
+	if (arr[i].type == TokenType::continue_) {
+		auto continue_ = std::make_unique<Continue>();
+		continue_->loc = arr[i].loc;
+		i++;
+		return continue_;
+	}
+	return nullptr;
 }
 
 std::unique_ptr<Block> ParseBlock(size_t& i, const TokenArray& arr) {
@@ -763,7 +805,10 @@ std::unique_ptr<ASTNode> ParseBasic(size_t& i, const TokenArray& arr) {
   }
   if (arr[i].type == TokenType::break_) {
     return ParseBreak(i, arr);
-  } else {
+  }
+  if (arr[i].type == TokenType::continue_) {
+		return ParseContinue(i, arr);
+	} else {
     errorf(arr[i].loc, "P153", "unknown token: {}{}", arr[i].content,
            getByTokenType(arr[i].type));
     i++;
