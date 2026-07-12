@@ -15,6 +15,7 @@ bool hasErrors = false;
 unsigned int totalError = 0;
 
 std::filesystem::path filePth;
+std::filesystem::path programPath;
 
 int main(int argc, char* argv[]) {
   if (argc < 2) {
@@ -22,6 +23,7 @@ int main(int argc, char* argv[]) {
               << " --help  | for more info\n";
     return 1;
   }
+  programPath = std::filesystem::absolute(argv[0]).parent_path();
 
   std::filesystem::path rel_path(argv[1]);
   std::filesystem::path cwd = std::filesystem::current_path();
