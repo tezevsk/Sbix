@@ -16,6 +16,8 @@ enum class TokenType {
   extern_,
   break_,
   continue_,
+  namespace_,
+	class_,
 
   // * Types *
 
