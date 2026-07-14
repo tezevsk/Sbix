@@ -12,4 +12,4 @@ lfx_crowdfunding: # Replace with a single LFX Crowdfunding project-name e.g., cl
 polar: # Replace with a single Polar username
 buy_me_a_coffee: # Replace with a single Buy Me a Coffee username
 thanks_dev: # Replace with a single thanks.dev username
-custom: ["https://app.lava.top/products/7ea4f127-2f35-4ee6-8ac9-5acf6d126ea2/82ae2840-1223-44a5-8794-15756255d60b?currency=RUB&amp;domainId=215e25f7-4e79-4264-9633-5ad0512e8e37&amp;domainName=github.com"] # Replace with up to 4 custom sponsorship URLs e.g., ['link1', 'link2']
+custom: ["https://app.lava.top/products/7ea4f127-2f35-4ee6-8ac9-5acf6d126ea2/82ae2840-1223-44a5-8794-15756255d60b?currency=USD&amp;domainId=215e25f7-4e79-4264-9633-5ad0512e8e37&amp;domainName=github.com"] # Replace with up to 4 custom sponsorship URLs e.g., ['link1', 'link2']
