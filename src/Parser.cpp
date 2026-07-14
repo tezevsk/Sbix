@@ -160,7 +160,7 @@ std::unique_ptr<Namespace> ParseNamespace(size_t& i, const TokenArray& arr) {
 	namespace_->np = arr[i].content;
 	i++; // name
 	if (arr[i].type != TokenType::lbrace) {
-		errorf(arr[i].loc, "P153", "Expected '{' after {}", namespace_->np.c_str());
+		errorf(arr[i].loc, "P153", "Expected '{{' after {}", namespace_->np);
 		return nullptr;
 	}
 	namespace_->nrr = std::move(ParseBlock(i, arr)->block);
