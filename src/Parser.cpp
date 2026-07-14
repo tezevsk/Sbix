@@ -174,6 +174,7 @@ std::unique_ptr<MethodCallNode> ParseDotCall(size_t& i, const TokenArray& arr, s
 	i++; // .
 	auto methodCall = std::make_unique<MethodCallNode>();
 	auto function = ParseFunction(i, arr);
+	static_cast<FunctionCallNode&>(*methodCall) = std::move(*function);
 	methodCall->object = std::move(Parent);
 	if (arr[i].type == TokenType::dot) {
 		return ParseDotCall(i, arr, std::move(methodCall));
