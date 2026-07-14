@@ -227,10 +227,28 @@ void Analyze(ASTNode* node, std::string addPrefix = "") {
       addErr();
       return;
     }
-    Analyze(varNode.expression.get(), addPrefix);
+    if (varNode.expression != nullptr) {
+      Analyze(varNode.expression.get(), addPrefix);
+    }
     varNode.mangledName = addPrefix + varNode.name;
-    symbolTable.insert(
-        {addPrefix + varNode.name, {.type = varNode.expression->evaluatedType, .argumentTypes = {}}});
+    ExprNode::DataType finalType; 
+    if (varNode.expression != nullptr) {
+      finalType = varNode.expression->evaluatedType;
+      if (varNode.preparedType != nullptr && *varNode.preparedType != finalType) {
+        std::cerr << "[\033[31mSBX-S104\033[0m] Type mismatch. Expected explicit type, got expression type. (" 
+                  << node->loc.ln << ":" << node->loc.col << ")\n";
+        addErr();
+      }
+    } else if (varNode.preparedType != nullptr) {
+      finalType = *varNode.preparedType; 
+    } else {
+      std::cerr << "[\033[31mSBX-S105\033[0m] Cannot deduce variable type. Name: " << varNode.name << "\n";
+      addErr();
+      return;
+    }
+    if (symbolTable.find(varNode.mangledName) == symbolTable.end()) {
+      symbolTable.insert({varNode.mangledName, {.type = finalType, .argumentTypes = {}}});
+    }
   }
   if (node->getType() == NodeType::variableUse) {
     auto& varNode = static_cast<VariableNode&>(*node);

@@ -235,17 +235,29 @@ std::unique_ptr<VariableDeclrNode> ParseVariableDeclr(size_t& i,
     i++;  // let / const
     if (arr[i].type != TokenType::identifier) {
       errorf(tempNode->loc, "P210", "Missing variable name.");
-
       return nullptr;
-      i++;
     }
     tempNode->name = arr[i].content;
     i++;  // name
-    if (isEOF(arr[i])) {
+    bool isPrepared = false;
+    if (arr[i].type == TokenType::identifier) {
+      ParsedTypeResult type = ParseType(i, arr);
+      tempNode->preparedType = std::make_shared<ExprNode::DataType>(type.baseType);
+      tempNode->preparedMeta = type.meta;
+      isPrepared = true;
+    }
+    if (arr[i].type != TokenType::equ) {
+      if (isPrepared && !tempNode->isConstant) {
+        tempNode->expression = nullptr;
+        return tempNode;
+      }
+      if (tempNode->isConstant && isPrepared) {
+        errorf(tempNode->loc, "P158", "Constants must be initialized.");
+      }
       errorf(tempNode->loc, "P154", "expected '=' after \"{}\", got \"{}{}\".",
              tempNode->name, getByTokenType(arr[i].type), arr[i].content);
+      if (!isEOF(arr[i])) i++;
       return nullptr;
-      i++;
     }
     i++;
     if (isEOF(arr[i])) {
