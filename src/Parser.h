@@ -32,6 +32,8 @@ enum class NodeType {
   functionDef,
   main,
   break_,
+  continue_,
+  namespace_,
   ifStatement,
   forStatement,
   whileStatement,
@@ -48,7 +50,6 @@ class ASTNode {
  public:
   virtual ~ASTNode() = default;
   virtual NodeType getType() const = 0;
-  virtual std::string printInfo() { return "unknown"; };
   pos loc = {1, 1};
 };
 
@@ -114,10 +115,6 @@ class VariableDeclrNode : public ASTNode {
   bool isConstant = false;
   std::shared_ptr<ExprNode::DataType> preparedType = nullptr;
   std::shared_ptr<ExprNode::TypeMetadata> preparedMeta = nullptr;
-  std::string printInfo() override {
-    return "Variable: name: " + name +
-           ", expression: " + expression->printInfo() + ".";
-  }
   NodeType getType() const override { return NodeType::variableDeclr; }
 };
 
@@ -133,7 +130,6 @@ class VariableNode : public ExprNode {
  public:
   std::string name;
   std::string mangledName;
-  std::string printInfo() override { return "Variable: name: " + name + "."; }
   NodeType getType() const override { return NodeType::variableUse; }
 };
 
@@ -142,15 +138,6 @@ class FunctionCallNode : public ExprNode {
   std::vector<std::unique_ptr<ExprNode>> Args;
   std::string functionName;
   std::string mangledName;
-  std::string printInfo() override {
-    return "Function: name: " + functionName + ", args: " + [this]() {
-      std::string res;
-      for (const auto& expr : Args) {
-        res += expr->printInfo() + " ";
-      }
-      return res;
-    }();
-  }
   NodeType getType() const override { return NodeType::functionCall; }
 };
 
@@ -183,6 +170,7 @@ class Continue : public ASTNode {
 };
 
 class Namespace : public ASTNode {
+ public:
 	std::string np;
 	std::vector<std::unique_ptr<ASTNode>> nrr;
 	NodeType getType() const override {
@@ -193,7 +181,6 @@ class Namespace : public ASTNode {
 class LiteralNode : public ExprNode {
  public:
   std::string value;
-  std::string printInfo() { return value; }
   NodeType getType() const override { return NodeType::constant; }
 };
 
@@ -209,10 +196,6 @@ class BinnaryOpNode : public ExprNode {
   std::unique_ptr<ExprNode> left;
   std::unique_ptr<ExprNode> right;
 
-  std::string printInfo() override {
-    return (left == nullptr ? "" : left->printInfo()) + "<-->" +
-           (right == nullptr ? "" : right->printInfo());
-  }
   NodeType getType() const override { return NodeType::binnaryOp; }
 };
 

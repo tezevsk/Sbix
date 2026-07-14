@@ -8,13 +8,6 @@
 
 #include "HandleBring.h"
 
-static bool isOp(TokenType t) {
-  if (t == TokenType::plus || t == TokenType::minus ||
-      t == TokenType::multiply || t == TokenType::divide)
-    return true;
-  return false;
-}
-
 static Operator getOperator(TokenType type) {
   switch (type) {
     case TokenType::plus:
@@ -560,25 +553,10 @@ std::unique_ptr<FunctionDeclNode> ParseExternFunc(size_t& i,
     return nullptr;
   }
   i++;
-  ExprNode::DataType frdt;
-  if (arr[i].content == "int") {
-    frdt = ExprNode::DataType::Int;
-    i++;
-  } else if (arr[i].content == "float") {
-    frdt = ExprNode::DataType::Float;
-    i++;
-  } else if (arr[i].content == "bool") {
-    frdt = ExprNode::DataType::Bool;
-    i++;
-  } else if (arr[i].content == "string") {
-    frdt = ExprNode::DataType::String;
-    i++;
-  } else if (arr[i].content == "void") {
-    frdt = ExprNode::DataType::Unknown;
-    i++;
-  }
+  ParsedTypeResult type = ParseType(i, arr);
 
-  node->evaluatedType = frdt;
+  node->evaluatedType = type.baseType;
+  node->typeMeta = type.meta;
   return node;
 }
 

@@ -230,7 +230,7 @@ void Analyze(ASTNode* node, std::string addPrefix = "") {
     Analyze(varNode.expression.get(), addPrefix);
     varNode.mangledName = addPrefix + varNode.name;
     symbolTable.insert(
-        {addPrefix + varNode.name, {varNode.expression->evaluatedType}});
+        {addPrefix + varNode.name, {.type = varNode.expression->evaluatedType, .argumentTypes = {}}});
   }
   if (node->getType() == NodeType::variableUse) {
     auto& varNode = static_cast<VariableNode&>(*node);

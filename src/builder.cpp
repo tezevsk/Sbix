@@ -372,7 +372,7 @@ void codegenStatement(ASTNode* node, llvm::IRBuilder<>& Builder,
         }
       }
 
-      llvm::BasicBlock* currentBodyEndBB = Builder.GetInsertBlock();
+      /*llvm::BasicBlock* currentBodyEndBB =*/ Builder.GetInsertBlock();
 
       llvm::Value* currentI = Builder.CreateLoad(intType, allocaI);
       llvm::Value* nextI = Builder.CreateAdd(
@@ -436,7 +436,7 @@ void codegenStatement(ASTNode* node, llvm::IRBuilder<>& Builder,
       Args.push_back(codegenExpr(arg.get(), Builder, Context, M));
     }
 
-    llvm::CallInst* Call = Builder.CreateCall(Func, Args);
+    /*llvm::CallInst* Call =*/ Builder.CreateCall(Func, Args);
   }
   if (node->getType() == NodeType::returns) {
     auto& ret = static_cast<ReturnNode&>(*node);
@@ -456,7 +456,7 @@ void codegenStatement(ASTNode* node, llvm::IRBuilder<>& Builder,
   }
 }
 
-void compile(NodeArray& nrr, int targetPlatform, int flags) {
+void compile(NodeArray& nrr, [[maybe_unused]] int targetPlatform, [[maybe_unused]] int flags) {
   llvm::LLVMContext Context;
   llvm::Module* M = new llvm::Module("base_module", Context);
   llvm::IRBuilder<> Builder(Context);
