@@ -48,7 +48,8 @@ bool isEOF(Token t) { return t.type == TokenType::EoF; }
 std::unique_ptr<ExprNode> ParseExpression(size_t& i, const TokenArray& arr);
 std::unique_ptr<ExprNode> ParseSum(size_t& i, const TokenArray& arr);
 std::unique_ptr<ASTNode> ParseBasic(size_t& i, const TokenArray& arr);
-std::unique_ptr<FunctionCallNode> ParseFunction(size_t& i, const TokenArray& arr)
+std::unique_ptr<FunctionCallNode> ParseFunction(size_t& i, const TokenArray& arr);
+std::unique_ptr<Block> ParseBlock(size_t& i, const TokenArray& arr);
 
 bool fq = false;
 std::unordered_map<std::string, bool> brought;
@@ -159,10 +160,10 @@ std::unique_ptr<Namespace> ParseNamespace(size_t& i, const TokenArray& arr) {
 	namespace_->np = arr[i].content;
 	i++; // name
 	if (arr[i].type != TokenType::lbrace) {
-		errorf(arr[i].loc, "P153", "Expected '{' after {}", namespace_->np);
+		errorf(arr[i].loc, "P153", "Expected '{' after {}", namespace_->np.c_str());
 		return nullptr;
 	}
-	namespace_->nrr = ParseBlock(i, arr)->block;
+	namespace_->nrr = std::move(ParseBlock(i, arr)->block);
 	return namespace_;
 }
 
@@ -171,7 +172,8 @@ std::unique_ptr<MethodCallNode> ParseDotCall(size_t& i, const TokenArray& arr, s
 		return nullptr;
 	}
 	i++; // .
-	auto methodCall = std::make_unique<MethodCallNode>(ParseFunction(i, arr));
+	auto methodCall = std::make_unique<MethodCallNode>();
+	auto function = ParseFunction(i, arr);
 	methodCall->object = std::move(Parent);
 	if (arr[i].type == TokenType::dot) {
 		return ParseDotCall(i, arr, std::move(methodCall));
