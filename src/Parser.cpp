@@ -6,8 +6,6 @@
 #include "diagnostics.h"
 #include "parse_helper.h"
 
-#include "HandleBring.h"
-
 static Operator getOperator(TokenType type) {
   switch (type) {
     case TokenType::plus:
@@ -110,34 +108,29 @@ ParsedTypeResult ParseType(size_t& i, const TokenArray& arr) {
   return result;
 }
 
-std::unique_ptr<Namespace> ParseBring(size_t& i, const TokenArray& arr) {
+std::unique_ptr<ImportNode> ParseBring(size_t& i, const TokenArray& arr) {
 	if (arr[i].type != TokenType::bring) {
 		return nullptr;
 	}
-	auto namespace_ = std::make_unique<Namespace>();
+	auto import_ = std::make_unique<ImportNode>();
 	i++; // keyword
-	if (arr[i].type != TokenType::identifier || arr[i].type != TokenType::string) {
+	if (arr[i].type != TokenType::identifier && arr[i].type != TokenType::string) {
 		errorf(arr[i].loc, "P210|P157", "Expected an identifier or string after \"bring\"");
 		i++;
 		return nullptr;
 	}
-	std::string importName;
-	namespace_->nrr = HandleBring(arr[i].content);
+	import_->modulePath = arr[i].content;
 	i++;
 	if (arr[i].type != TokenType::arrow) {
-		size_t lastDotPosition = importName.rfind(".");
-		namespace_->np = (lastDotPosition != std::string::npos)
-			? importName.substr(lastDotPosition)
-			: importName;
-		return namespace_;
+		return import_;
 	}
 	i++; // ->
 	if (arr[i].type != TokenType::identifier) {
 		errorf(arr[i].loc, "P210", "Expetced and indentifier after '->'");
 		return nullptr;
 	}
-	namespace_->np = arr[i].content;
-	return namespace_;
+	import_->alias = arr[i].content;
+	return import_;
 }
 
 std::unique_ptr<Namespace> ParseNamespace(size_t& i, const TokenArray& arr) {

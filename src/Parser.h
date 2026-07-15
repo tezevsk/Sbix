@@ -33,6 +33,7 @@ enum class NodeType {
   main,
   break_,
   continue_,
+  import_,
   namespace_,
   ifStatement,
   forStatement,
@@ -167,6 +168,15 @@ class Continue : public ASTNode {
 	NodeType getType() const override {
 		return NodeType::continue_;
 	}
+};
+
+class ImportNode : public ASTNode {
+  public:
+    std::string modulePath;
+    std::string alias = "";
+    NodeType getType() const override {
+      return NodeType::import_;
+    }
 };
 
 class Namespace : public ASTNode {
