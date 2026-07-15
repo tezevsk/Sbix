@@ -9,8 +9,22 @@
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/FileSystem.h>
 
+#include <llvm/IR/LegacyPassManager.h>
+#include <llvm/MC/TargetRegistry.h>
+#include <llvm/Support/FileSystem.h>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/Target/TargetMachine.h>
+#include <llvm/Target/TargetOptions.h>
+#include <llvm/TargetParser/Host.h>
+#include <llvm/TargetParser/Triple.h>
+
+#include <llvm/Support/CodeGen.h>
+
+
 #include <iostream>
 #include <map>
+
+#include <optional>
 
 std::map<std::string, llvm::AllocaInst*> NamedValues;
 
@@ -591,6 +605,53 @@ void compile(NodeArray& nrr, [[maybe_unused]] int targetPlatform, [[maybe_unused
   M->print(file, nullptr);
 
   file.flush();
+
+  llvm::InitializeNativeTarget();
+  llvm::InitializeNativeTargetAsmPrinter();
+  llvm::InitializeNativeTargetAsmParser();
+
+  auto TargetTripleStr = llvm::sys::getProcessTriple();
+  llvm::Triple TargetTriple(TargetTripleStr);
+  M->setTargetTriple(TargetTriple);
+
+  std::string Error;
+  auto Target = llvm::TargetRegistry::lookupTarget(TargetTriple, Error);
+  if (!Target) {
+      std::cerr << "TargetRegistry Error: " << Error << "\n";
+      delete M;
+      return;
+  }
+
+  auto CPU = "generic";
+  auto Features = "";
+  llvm::TargetOptions opt;
+  std::optional<llvm::Reloc::Model> RM;
+  auto TargetMachine = Target->createTargetMachine(TargetTriple, CPU, Features, opt, RM);
+
+  M->setDataLayout(TargetMachine->createDataLayout());
+
+  // 4. Запись в output.o
+  std::error_code EC_obj;
+  llvm::raw_fd_ostream dest("output.o", EC_obj, llvm::sys::fs::OF_None);
+  if (EC_obj) {
+      std::cerr << "Couldn't open file to write object: " << EC_obj.message() << ".\n";
+      delete M;
+      return;
+  }
+
+  llvm::legacy::PassManager pass;
+  llvm::CodeGenFileType FileType = llvm::CodeGenFileType::ObjectFile;
+
+
+  if (TargetMachine->addPassesToEmitFile(pass, dest, nullptr, FileType)) {
+      std::cerr << "TargetMachine can't emit an object file\n";
+      delete M;
+      return;
+  }
+
+  // Запускаем компиляцию в машинный код
+  pass.run(*M);
+  dest.flush();
 
   delete M;
 }
