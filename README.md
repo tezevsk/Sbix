@@ -93,6 +93,17 @@ You can *ensure* script *safety* [Here](scripts/fastinstall.sh)
 
 #### Or instal &emsp; [prebuilt binnaries](github.com/tezevsk/Sbix/releases)</a>
 
+### Compiling Programs
+To get executable you need:
+* Sbix Compiler
+* Linker (ex. clang)
+  ![Result of compiled program](.data/image.png)
+  ```bash
+  sbix examples/Hello42.sbix
+  clang output.o -o Hello42
+  ./Hello42
+  ```
+
 ## Tested on
 
 * **OS:** Fedora 44 Linux
