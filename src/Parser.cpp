@@ -352,6 +352,7 @@ std::unique_ptr<CollectionNode> ParseCollection(size_t& i,
 
       if (i < arr.size() && arr[i].type == TokenType::rbracket) {
         errorf(arr[i].loc, "P152", "Trailing comma in collection.");
+        return nullptr;
       }
       expect_element = true;
       continue;

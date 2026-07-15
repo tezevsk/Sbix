@@ -168,22 +168,33 @@ void Analyze(ASTNode* node, std::string addPrefix = "") {
 		}
 	}
   if (node->getType() == NodeType::collection) {
-    auto collection = dynamic_cast<CollectionNode*>(node);
-    if (collection) {
-      collection->evaluatedType = ExprNode::DataType::Array;
-      collection->typeMeta = std::make_shared<ExprNode::TypeMetadata>();
-      if (!collection->objects.empty()) {
-        collection->typeMeta->arrayElementBaseType =
-            collection->objects[0]->evaluatedType;
-        collection->typeMeta->arrayElementMeta =
-            collection->objects[0]->typeMeta;
-      } else {
-        collection->typeMeta->arrayElementBaseType =
-            ExprNode::DataType::Unknown;
-        collection->typeMeta->arrayElementMeta = nullptr;
+    auto collection = static_cast<CollectionNode*>(node);
+  
+    collection->evaluatedType = ExprNode::DataType::Array;
+    collection->typeMeta = std::make_shared<ExprNode::TypeMetadata>();
+  
+    if (!collection->objects.empty()) {
+      auto firstType = collection->objects[0]->evaluatedType;
+      auto firstMeta = collection->objects[0]->typeMeta;
+      
+      for (const auto& obj : collection->objects) {
+        if (obj->evaluatedType != firstType) {
+          std::cerr
+            << "[\033[31mSBX-S104\033[0m] Array elements must have the same type. ("
+            << node->loc.ln << ":" << node->loc.col
+            << ")\n";
+          return;
+        }
       }
+
+      collection->typeMeta->arrayElementBaseType = firstType;
+      collection->typeMeta->arrayElementMeta = firstMeta;
+    } else {
+      collection->typeMeta->arrayElementBaseType = ExprNode::DataType::Unknown;
+      collection->typeMeta->arrayElementMeta = nullptr;
     }
   }
+
 
   if (node->getType() == NodeType::collectionOverride) {
     auto& collection = static_cast<CollectionOverrideNode&>(*node);
