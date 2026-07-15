@@ -20,7 +20,6 @@
 
 #include <llvm/Support/CodeGen.h>
 
-
 #include <iostream>
 #include <map>
 
@@ -630,7 +629,6 @@ void compile(NodeArray& nrr, [[maybe_unused]] int targetPlatform, [[maybe_unused
 
   M->setDataLayout(TargetMachine->createDataLayout());
 
-  // 4. Запись в output.o
   std::error_code EC_obj;
   llvm::raw_fd_ostream dest("output.o", EC_obj, llvm::sys::fs::OF_None);
   if (EC_obj) {
@@ -649,9 +647,10 @@ void compile(NodeArray& nrr, [[maybe_unused]] int targetPlatform, [[maybe_unused
       return;
   }
 
-  // Запускаем компиляцию в машинный код
   pass.run(*M);
   dest.flush();
+
+  // Just Compile it With Clang
 
   delete M;
 }
