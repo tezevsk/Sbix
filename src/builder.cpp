@@ -5,6 +5,7 @@
 #include <llvm/IR/Intrinsics.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
+#include <llvm/IR/Verifier.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/FileSystem.h>
 
@@ -568,6 +569,16 @@ void compile(NodeArray& nrr, [[maybe_unused]] int targetPlatform, [[maybe_unused
     }
   }
   
+  std::string verifyError;
+  llvm::raw_string_ostream errorStream(verifyError);
+  
+  bool hasErrors = llvm::verifyModule(*M, &errorStream);
+  
+  if (hasErrors) {
+     std::cerr << "\033[31mCRITICAL ERROR. IR VERIFICATION FAILED\033[0m\n" << errorStream.str() << "\n";
+     return; 
+  }
+
   std::error_code EC;
 
   llvm::raw_fd_ostream file("debug.ll", EC, llvm::sys::fs::OF_None);
