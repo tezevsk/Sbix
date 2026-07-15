@@ -115,4 +115,4 @@ Contributions, Issues and Pull requests are **welcome**! Every small step lead t
 
 ## License
 
-Code licensed under *Apache License 2.0* Distributed "AS IS" Absolute accuracy and (absolute) safety of work are NOT guaranteed. For further [info](LICENSE)
+Code licensed under *Apache License 2.0* Distributed "AS IS" NO WARANTY. For further [info](LICENSE)
