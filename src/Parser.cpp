@@ -54,7 +54,10 @@ ParsedTypeResult ParseType(size_t& i, const TokenArray& arr) {
   ParsedTypeResult result{ExprNode::DataType::Unknown};
   if (i >= arr.size() || arr[i].type != TokenType::identifier) return result;
   ExprNode::DataType& type = result.baseType;
-  if (arr[i].content == "int") {
+  if (arr[i].content == "void") {
+    type = ExprNode::DataType::Unknown;
+    i++;
+  } else if (arr[i].content == "int") {
     type = ExprNode::DataType::Int;
     i++;
   } else if (arr[i].content == "float") {
