@@ -3,9 +3,6 @@
 #include <iostream>
 #include <unordered_map>
 
-#include "llvm/ADT/Hashing.h"
-#include "llvm/ADT/StringExtras.h"
-
 using Type = ExprNode::DataType;
 
 struct SymbolInfo {
@@ -32,12 +29,6 @@ inline void addErr() {
 }
 
 bool hasEntry = false;
-
-std::string Hash(std::string_view name) {
-  llvm::hash_code hash = llvm::hash_value(name);
-  std::string hex_hash = llvm::utohexstr(static_cast<uint64_t>(hash));
-  return hex_hash;
-}
 
 bool AreTypesEqual(ExprNode::DataType typeA,
                    std::shared_ptr<ExprNode::TypeMetadata> metaA,
@@ -315,7 +306,7 @@ void Analyze(ASTNode* node, std::string addPrefix = "") {
     if (!funcNode.isExtern) {
       funcNode.mangledName = addPrefix + funcNode.functionName;
 
-      std::string nextPrefix = addPrefix + Hash(funcNode.functionName) + ":";
+      std::string nextPrefix = addPrefix + funcNode.functionName + "_";
       for (auto& paramName : funcNode.Params) {
         if (paramName.name.empty()) continue;
         symbolTable.insert(
@@ -377,19 +368,19 @@ void Analyze(ASTNode* node, std::string addPrefix = "") {
     returnNode.evaluatedType = returnNode.returns->evaluatedType;
 
     std::string tempPrefix = addPrefix;
-    if (!tempPrefix.empty() && tempPrefix.back() == ':') {
+    if (!tempPrefix.empty() && tempPrefix.back() == '_') {
       tempPrefix.pop_back();
-      size_t lastColon = tempPrefix.rfind(':');
+      size_t lastColon = tempPrefix.rfind('_');
       std::string funcHash = (lastColon == std::string::npos)
                                  ? tempPrefix
                                  : tempPrefix.substr(lastColon + 1);
 
       for (auto& [key, info] : symbolTable) {
         if (info.isFunction) {
-          size_t namePos = key.rfind(':');
+          size_t namePos = key.rfind('_');
           std::string rawName =
               (namePos == std::string::npos) ? key : key.substr(namePos + 1);
-          if (Hash(rawName) == funcHash) {
+          if (rawName == funcHash) {
             info.type =
                 returnNode.evaluatedType;
             break;
@@ -451,7 +442,7 @@ void Analyze(ASTNode* node, std::string addPrefix = "") {
       addErr();
     }
 
-    std::string nextPrefix = addPrefix + Hash("if" + stringPos(node)) + ":";
+    std::string nextPrefix = addPrefix + ("if" + stringPos(node)) + "_";
     Analyze(ifNode.thenBlock.get(), nextPrefix);
     if (ifNode.orelse) {
       Analyze(ifNode.orelse.get(), nextPrefix + "else:");
@@ -467,7 +458,7 @@ void Analyze(ASTNode* node, std::string addPrefix = "") {
       addErr();
     }
 
-    std::string nextPrefix = addPrefix + Hash("while" + stringPos(node)) + ":";
+    std::string nextPrefix = addPrefix + ("while" + stringPos(node)) + "_";
     loop_depth++;
     Analyze(whileNode.body.get(), nextPrefix);
     loop_depth--;
@@ -475,7 +466,7 @@ void Analyze(ASTNode* node, std::string addPrefix = "") {
   if (node->getType() == NodeType::forStatement) {
     auto& forNode = static_cast<ForStatementNode&>(*node);
 
-    std::string nextPrefix = addPrefix + Hash("for" + stringPos(node)) + ":";
+    std::string nextPrefix = addPrefix + ("for" + stringPos(node)) + "_";
 
     forNode.mangledName = nextPrefix + forNode.varName;
     symbolTable.insert({forNode.mangledName, {Type::Int}});
